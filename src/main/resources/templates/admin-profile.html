@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitTrackPro | Admin Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/frontend/style.css}" href="/frontend/style.css">
+</head>
+<body class="dashboard-page">
+  <main class="page-shell">
+    <nav class="navbar glass-card">
+      <div class="logo-mark">Admin Profile</div>
+      <div class="nav-actions">
+        <a class="button-secondary" th:href="@{/dashboard}">Admin Dashboard</a>
+        <form th:action="@{/logout}" method="post">
+          <button class="button-secondary" type="submit">Logout</button>
+        </form>
+      </div>
+    </nav>
+
+    <section class="dashboard-columns">
+      <article class="workout-panel glass-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Admin Details</h2>
+            <p class="section-subtitle">Manage your administrator profile.</p>
+          </div>
+        </div>
+        <div class="status-message show success" th:if="${param.updated}">Profile updated successfully.</div>
+        <div class="status-message show error" th:if="${profileError}" th:text="${profileError}"></div>
+        <form class="workout-form" th:action="@{/profile}" th:object="${profileForm}" method="post">
+          <div class="field-group">
+            <label for="username">Username</label>
+            <input id="username" type="text" th:field="*{username}" required>
+            <span class="field-hint" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+          </div>
+          <div class="field-group">
+            <label for="email">Email</label>
+            <input id="email" type="email" th:field="*{email}" required>
+            <span class="field-hint" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+          </div>
+          <div class="field-group">
+            <label>Role</label>
+            <input type="text" th:value="${currentUser.role}" disabled>
+          </div>
+          <button class="button-primary" type="submit">Update admin profile</button>
+        </form>
+      </article>
+
+      <article class="workout-panel glass-card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Admin Activity History</h2>
+            <p class="section-subtitle">Recent operations performed using your admin account.</p>
+          </div>
+        </div>
+        <div class="list-shell">
+          <div class="empty-state" th:if="${#lists.isEmpty(history)}">No activity recorded yet.</div>
+          <article class="workout-item" th:each="historyEntry : ${history}">
+            <div class="workout-topline">
+              <div>
+                <h3 class="workout-name" th:text="${historyEntry.action}">Action</h3>
+                <span class="field-hint" th:text="${historyEntry.timestamp}">Timestamp</span>
+              </div>
+              <span class="pill" th:text="${historyEntry.operationType}">Type</span>
+            </div>
+            <div class="field-hint" th:text="${historyEntry.description}">Description</div>
+          </article>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

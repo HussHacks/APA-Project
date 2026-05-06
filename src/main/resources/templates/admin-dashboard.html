@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitTrackPro | Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/frontend/style.css}" href="/frontend/style.css">
+</head>
+<body class="dashboard-page">
+  <main class="page-shell">
+    <nav class="navbar glass-card">
+      <div class="logo-mark">FitTrackPro Admin</div>
+      <div class="nav-actions">
+        <a class="button-secondary" th:href="@{/profile}">Admin Profile</a>
+        <form th:action="@{/logout}" method="post">
+          <button class="button-secondary" type="submit">Logout</button>
+        </form>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-copy glass-card">
+        <span class="eyebrow">Admin Home</span>
+        <h1 th:text="'Welcome, ' + ${currentUser.username} + '.'">Welcome.</h1>
+        <p>Monitor registered users, activity history, and your own tracking data from one admin view.</p>
+      </div>
+      <aside class="hero-side glass-card">
+        <span class="hero-highlight">Signed in as Admin</span>
+        <p class="section-subtitle" th:text="'Users registered: ' + ${#lists.size(allUsers)}">Users registered</p>
+        <div class="field-hint" th:text="'Audit entries: ' + ${#lists.size(allAuditLogs)}">Audit entries</div>
+      </aside>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card glass-card">
+        <span class="metric-label">Users</span>
+        <div class="metric-value" th:text="${#lists.size(allUsers)}">0</div>
+      </article>
+      <article class="stat-card glass-card">
+        <span class="metric-label">Audit logs</span>
+        <div class="metric-value" th:text="${#lists.size(allAuditLogs)}">0</div>
+      </article>
+      <article class="stat-card glass-card">
+        <span class="metric-label">Your workouts</span>
+        <div class="metric-value" th:text="${#lists.size(workouts)}">0</div>
+      </article>
+    </section>
+
+    <section class="dashboard-columns">
+      <div class="panel-stack">
+        <article class="workout-panel glass-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Registered Users</h2>
+              <p class="section-subtitle">A role-based list of users in the system.</p>
+            </div>
+          </div>
+          <div class="list-shell">
+            <article class="workout-item" th:each="userEntry : ${allUsers}">
+              <div class="workout-topline">
+                <div>
+                  <h3 class="workout-name" th:text="${userEntry.username}">Username</h3>
+                  <span class="field-hint" th:text="${userEntry.email}">Email</span>
+                </div>
+                <span class="pill" th:text="${userEntry.role}">ROLE</span>
+              </div>
+            </article>
+          </div>
+        </article>
+
+        <article class="workout-panel glass-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Your Nutrition Summary</h2>
+              <p class="section-subtitle">Admins still have their own fitness tracking space.</p>
+            </div>
+          </div>
+          <div class="summary-grid admin-summary-grid">
+            <article class="summary-card glass-card">
+              <span class="metric-label">Calories</span>
+              <div class="metric-value" th:text="${summary.calories}">0</div>
+            </article>
+            <article class="summary-card glass-card">
+              <span class="metric-label">Protein</span>
+              <div class="metric-value" th:text="${summary.protein} + 'g'">0g</div>
+            </article>
+            <article class="summary-card glass-card">
+              <span class="metric-label">Carbs</span>
+              <div class="metric-value" th:text="${summary.carbs} + 'g'">0g</div>
+            </article>
+            <article class="summary-card glass-card">
+              <span class="metric-label">Fats</span>
+              <div class="metric-value" th:text="${summary.fats} + 'g'">0g</div>
+            </article>
+          </div>
+        </article>
+      </div>
+
+      <div class="panel-stack">
+        <article class="workout-panel glass-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">System Audit History</h2>
+              <p class="section-subtitle">Operations history for all users.</p>
+            </div>
+          </div>
+          <div class="list-shell">
+            <article class="workout-item" th:each="logEntry : ${allAuditLogs}">
+              <div class="workout-topline">
+                <div>
+                  <h3 class="workout-name" th:text="${logEntry.action}">Action</h3>
+                  <span class="field-hint" th:text="${logEntry.user.username} + ' • ' + ${logEntry.timestamp}">User</span>
+                </div>
+                <span class="pill" th:text="${logEntry.operationType}">Type</span>
+              </div>
+              <div class="field-hint" th:text="${logEntry.description}">Description</div>
+            </article>
+          </div>
+        </article>
+
+        <article class="workout-panel glass-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Your Recent Activity</h2>
+              <p class="section-subtitle">Personal audit trail for the admin account.</p>
+            </div>
+          </div>
+          <div class="list-shell">
+            <div class="empty-state" th:if="${#lists.isEmpty(history)}">No activity recorded yet.</div>
+            <article class="workout-item" th:each="historyEntry : ${history}">
+              <div class="workout-topline">
+                <div>
+                  <h3 class="workout-name" th:text="${historyEntry.action}">Action</h3>
+                  <span class="field-hint" th:text="${historyEntry.timestamp}">Timestamp</span>
+                </div>
+                <span class="pill" th:text="${historyEntry.operationType}">Type</span>
+              </div>
+              <div class="field-hint" th:text="${historyEntry.description}">Description</div>
+            </article>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

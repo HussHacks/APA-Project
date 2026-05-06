@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitTrackPro | User Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/frontend/style.css}" href="/frontend/style.css">
+</head>
+<body class="dashboard-page">
+  <main class="page-shell">
+    <nav class="navbar glass-card">
+      <div class="logo-mark">FitTrackPro</div>
+      <div class="nav-actions">
+        <a class="button-secondary" th:href="@{/profile}">Profile</a>
+        <form th:action="@{/logout}" method="post">
+          <button class="button-secondary" type="submit">Logout</button>
+        </form>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="hero-copy glass-card">
+        <span class="eyebrow">User Home</span>
+        <h1 th:text="'Welcome back, ' + ${currentUser.username} + '.'">Welcome back.</h1>
+        <p>Track your meals, workouts, and activity history from one organized dashboard.</p>
+      </div>
+      <aside class="hero-side glass-card">
+        <span class="hero-highlight">Signed in as User</span>
+        <p class="section-subtitle" th:text="'Today: ' + ${today}">Today</p>
+        <div class="field-hint" th:text="'Email: ' + ${currentUser.email}">Email</div>
+        <div class="status-message show success" th:if="${mealSuccess}" th:text="${mealSuccess}"></div>
+        <div class="status-message show success" th:if="${workoutSuccess}" th:text="${workoutSuccess}"></div>
+        <div class="status-message show success" th:if="${param.resetMeals}" th:text="'Meal history reset successfully'"></div>
+        <div class="status-message show success" th:if="${param.resetWorkouts}" th:text="'Workout history reset successfully'"></div>
+        <div class="status-message show error" th:if="${mealError}" th:text="${mealError}"></div>
+        <div class="status-message show error" th:if="${workoutError}" th:text="${workoutError}"></div>
+      </aside>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card glass-card">
+        <span class="metric-label">Today calories</span>
+        <div class="metric-value" th:text="${summary.calories}">0</div>
+      </article>
+      <article class="stat-card glass-card">
+        <span class="metric-label">Today protein</span>
+        <div class="metric-value" th:text="${summary.protein} + 'g'">0g</div>
+      </article>
+      <article class="stat-card glass-card">
+        <span class="metric-label">Total workouts</span>
+        <div class="metric-value" th:text="${#lists.size(workouts)}">0</div>
+      </article>
+    </section>
+
+    <section>
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Meal Summary</h2>
+          <p class="section-subtitle">Your current nutrition totals for today.</p>
+        </div>
+        <form th:action="@{/dashboard/reset-meals}" method="post">
+          <button class="button-secondary" type="submit">Reset Meals</button>
+        </form>
+      </div>
+      <div class="summary-grid">
+        <article class="summary-card glass-card">
+          <span class="metric-label">Calories</span>
+          <div class="metric-value" th:text="${summary.calories}">0</div>
+        </article>
+        <article class="summary-card glass-card">
+          <span class="metric-label">Protein</span>
+          <div class="metric-value" th:text="${summary.protein} + 'g'">0g</div>
+        </article>
+        <article class="summary-card glass-card">
+          <span class="metric-label">Carbs</span>
+          <div class="metric-value" th:text="${summary.carbs} + 'g'">0g</div>
+        </article>
+        <article class="summary-card glass-card">
+          <span class="metric-label">Fats</span>
+          <div class="metric-value" th:text="${summary.fats} + 'g'">0g</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="dashboard-columns">
+      <div class="panel-stack">
+        <article class="workout-panel glass-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Add Meal</h2>
+              <p class="section-subtitle">Every field is validated before saving.</p>
+            </div>
+          </div>
+          <form class="workout-form" th:action="@{/meals}" th:object="${meal}" method="post">
+            <div class="workout-form-grid">
+              <div class="field-group full-span">
+                <label for="mealName">Meal name</label>
+                <input id="mealName" type="text" th:field="*{name}" required>
+              </div>
+              <div class="field-group">
+                <label for="mealCalories">Calories</label>
+                <input id="mealCalories" type="number" min="0" th:field="*{calories}" required>
+              </div>
+              <div class="field-group">
+                <label for="mealProtein">Protein</label>
+                <input id="mealProtein" type="number" min="0" th:field="*{protein}" required>
+              </div>
+              <div class="field-group">
+                <label for="mealCarbs">Carbs</label>
+                <input id="mealCarbs" type="number" min="0" th:field="*{carbs}" required>
+              </div>
+              <div class="field-group">
+                <label for="mealFats">Fats</label>
+                <input id="mealFats" type="number" min="0" th:field="*{fats}" required>
+              </div>
+              <div class="field-group">
+                <label for="mealType">Meal type</label>
+                <input id="mealType" type="text" th:field="*{mealType}" required>
+              </div>
+              <div class="field-group">
+                <label for="mealDate">Date</label>
+                <input id="mealDate" type="date" th:field="*{date}" th:value="${today}" required>
+              </div>
+            </div>
+            <button class="button-primary" type="submit">Save meal</button>
+          </form>
+        </article>
+
+        <article class="workout-panel glass-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Add Workout</h2>
+              <p class="section-subtitle">Log your training sessions with full input validation.</p>
+            </div>
+          </div>
+          <form class="workout-form" th:action="@{/workouts}" th:object="${workout}" method="post">
+            <div class="workout-form-grid">
+              <div class="field-group full-span">
+                <label for="workoutName">Workout name</label>
+                <input id="workoutName" type="text" th:field="*{name}" required>
+              </div>
+              <div class="field-group">
+                <label for="workoutSets">Sets</label>
+                <input id="workoutSets" type="number" min="1" th:field="*{sets}" required>
+              </div>
+              <div class="field-group">
+                <label for="workoutReps">Reps</label>
+                <input id="workoutReps" type="number" min="1" th:field="*{reps}" required>
+              </div>
+              <div class="field-group">
+                <label for="workoutWeight">Weight</label>
+                <input id="workoutWeight" type="number" min="0" step="0.1" th:field="*{weight}" required>
+              </div>
+              <div class="field-group">
+                <label for="workoutDate">Date</label>
+                <input id="workoutDate" type="date" th:field="*{date}" th:value="${today}" required>
+              </div>
+            </div>
+            <button class="button-primary" type="submit">Save workout</button>
+          </form>
+        </article>
+      </div>
+
+      <div class="panel-stack">
+        <article class="workout-panel glass-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Meal History</h2>
+              <p class="section-subtitle">Your saved meals appear here.</p>
+            </div>
+          </div>
+          <div class="list-shell">
+            <div class="empty-state" th:if="${#lists.isEmpty(meals)}">No meals logged yet.</div>
+            <article class="workout-item" th:each="mealEntry : ${meals}">
+              <div class="workout-topline">
+                <div>
+                  <h3 class="workout-name" th:text="${mealEntry.name}">Meal</h3>
+                  <span class="field-hint" th:text="${mealEntry.mealType} + ' on ' + ${mealEntry.date}">Meal type</span>
+                </div>
+                <span class="pill" th:text="${mealEntry.calories} + ' kcal'">0 kcal</span>
+              </div>
+              <div class="workout-metrics">
+                <div class="mini-metric"><span class="field-hint">Protein</span><strong th:text="${mealEntry.protein} + 'g'">0g</strong></div>
+                <div class="mini-metric"><span class="field-hint">Carbs</span><strong th:text="${mealEntry.carbs} + 'g'">0g</strong></div>
+                <div class="mini-metric"><span class="field-hint">Fats</span><strong th:text="${mealEntry.fats} + 'g'">0g</strong></div>
+              </div>
+            </article>
+          </div>
+        </article>
+
+        <article class="workout-panel glass-card">
+          <div class="section-header">
+            <div>
+              <h2 class="section-title">Workout History</h2>
+              <p class="section-subtitle">Your training sessions are stored here.</p>
+            </div>
+            <form th:action="@{/dashboard/reset-workouts}" method="post">
+              <button class="button-secondary" type="submit">Reset Workouts</button>
+            </form>
+          </div>
+          <div class="list-shell">
+            <div class="empty-state" th:if="${#lists.isEmpty(workouts)}">No workouts logged yet.</div>
+            <article class="workout-item" th:each="workoutEntry : ${workouts}">
+              <div class="workout-topline">
+                <div>
+                  <h3 class="workout-name" th:text="${workoutEntry.name}">Workout</h3>
+                  <span class="field-hint" th:text="'Logged on ' + ${workoutEntry.date}">Date</span>
+                </div>
+                <span class="pill" th:text="${workoutEntry.weight} + ' kg'">0 kg</span>
+              </div>
+              <div class="workout-metrics">
+                <div class="mini-metric"><span class="field-hint">Sets</span><strong th:text="${workoutEntry.sets}">0</strong></div>
+                <div class="mini-metric"><span class="field-hint">Reps</span><strong th:text="${workoutEntry.reps}">0</strong></div>
+                <div class="mini-metric"><span class="field-hint">Volume</span><strong th:text="${workoutEntry.sets * workoutEntry.reps * workoutEntry.weight}">0</strong></div>
+              </div>
+            </article>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
